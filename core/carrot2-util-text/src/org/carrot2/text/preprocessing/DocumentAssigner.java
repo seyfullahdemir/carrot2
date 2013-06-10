@@ -13,16 +13,29 @@
 package org.carrot2.text.preprocessing;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.carrot2.core.attribute.Processing;
 import org.carrot2.text.analysis.TokenTypeUtils;
 import org.carrot2.text.preprocessing.PreprocessingContext.AllLabels;
-import org.carrot2.util.attribute.*;
+import org.carrot2.util.attribute.Attribute;
+import org.carrot2.util.attribute.AttributeLevel;
+import org.carrot2.util.attribute.Bindable;
+import org.carrot2.util.attribute.DefaultGroups;
+import org.carrot2.util.attribute.Group;
+import org.carrot2.util.attribute.Input;
+import org.carrot2.util.attribute.Label;
+import org.carrot2.util.attribute.Level;
 import org.carrot2.util.attribute.constraint.IntRange;
 
 import com.carrotsearch.hppc.BitSet;
 import com.carrotsearch.hppc.IntArrayList;
 import com.google.common.collect.Lists;
+
+import edu.smu.tspell.wordnet.Synset;
+import edu.smu.tspell.wordnet.WordNetDatabase;
 
 /**
  * Assigns document to label candidates. For each label candidate from
@@ -51,6 +64,13 @@ public class DocumentAssigner
      * documents to be put in clusters, which will make the "Other Topics" cluster
      * smaller, but also lower the precision of cluster-document assignments.
      */
+	static {
+		System.setProperty("wordnet.database.dir", "C:\\Program Files (x86)\\WordNet\\2.1\\dict");
+	}
+
+	private static final WordNetDatabase wordnet = WordNetDatabase.getFileInstance();
+
+	
     @Input
     @Processing
     @Attribute
@@ -79,6 +99,7 @@ public class DocumentAssigner
         final int [] labelsFeatureIndex = context.allLabels.featureIndex;
         final int [][] stemsTfByDocument = context.allStems.tfByDocument;
         final int [] wordsStemIndex = context.allWords.stemIndex;
+        final char [][] image = context.allWords.image;
         final short [] wordsTypes = context.allWords.type;
         final int [][] phrasesTfByDocument = context.allPhrases.tfByDocument;
         final int [][] phrasesWordIndices = context.allPhrases.wordIndices;
@@ -87,15 +108,29 @@ public class DocumentAssigner
 
         final BitSet [] labelsDocumentIndices = new BitSet [labelsFeatureIndex.length];
 
+        
+        Map<String, Integer> stemImageStemIndexMap = buildStemImageStemIndexMap(context);
+        
+        
         for (int i = 0; i < labelsFeatureIndex.length; i++)
         {
-            final BitSet documentIndices = new BitSet(documentCount);
+            BitSet documentIndices = new BitSet(documentCount);
 
             final int featureIndex = labelsFeatureIndex[i];
+            
+            
+            //if the label is a word
             if (featureIndex < wordCount)
             {
-                addTfByDocumentToBitSet(documentIndices,
-                    stemsTfByDocument[wordsStemIndex[featureIndex]]);
+            	//featureIndexin işaret ettiği wordün steminin tf by document dizisini parametre geçti.
+                
+            	char[] wordString = image[featureIndex];
+             	List<Integer> indicesOfStemsAllSynonymStemsWithItself = getIndicesOfStemsAllSynonymStemsWithItself(stemImageStemIndexMap, wordString, wordsStemIndex[featureIndex]);
+          
+             	documentIndices = addTfByDocumentToBitSet(stemsTfByDocument, 
+             			indicesOfStemsAllSynonymStemsWithItself, 
+             			documentCount);
+             	
             }
             else
             {
@@ -110,27 +145,22 @@ public class DocumentAssigner
                     final int [] wordIndices = phrasesWordIndices[phraseIndex];
                     boolean firstAdded = false;
 
+                    List<BitSet> documentIndicesList = new ArrayList<BitSet>();
+                    
                     for (int j = 0; j < wordIndices.length; j++)
                     {
                         final int wordIndex = wordIndices[j];
+                        //yalnızca stop words dışı kelimeler incelenir.
                         if (!TokenTypeUtils.isCommon(wordsTypes[wordIndex]))
                         {
-                            if (!firstAdded)
-                            {
-                                addTfByDocumentToBitSet(documentIndices,
-                                    stemsTfByDocument[wordsStemIndex[wordIndex]]);
-                                firstAdded = true;
-                            }
-                            else
-                            {
-                                final BitSet temp = new BitSet(documentCount);
-                                addTfByDocumentToBitSet(temp,
-                                    stemsTfByDocument[wordsStemIndex[wordIndex]]);
-                                // .retainAll == set intersection
-                                documentIndices.and(temp);
-                            }
+                        	char[] wordString = image[wordIndex];
+							List<Integer> indicesOfStemsAllSynonymStemsWithItself = getIndicesOfStemsAllSynonymStemsWithItself(stemImageStemIndexMap, wordString, wordsStemIndex[wordIndex] );
+                        	documentIndices = addTfByDocumentToBitSet(stemsTfByDocument, indicesOfStemsAllSynonymStemsWithItself, documentCount);
+                        	documentIndicesList.add(documentIndices);
+                           
                         }
                     }
+                    documentIndices = intersectDocuments(documentIndicesList, documentCount);
                 }
             }
 
@@ -164,6 +194,7 @@ public class DocumentAssigner
         }
     }
 
+    //bu tfByDocument arrayi parametre geçilmiş stemi / phrase'i içeren dokümanları set et.
     private static void addTfByDocumentToBitSet(final BitSet documentIndices,
         final int [] tfByDocument)
     {
@@ -172,4 +203,73 @@ public class DocumentAssigner
             documentIndices.set(tfByDocument[j * 2]);
         }
     }
-}
+    
+
+    private static BitSet addTfByDocumentToBitSet(final int [][] stemsTfByDocument,
+            List<Integer> stemIndices, int documentCount){
+    	
+    	BitSet documentIndices = new BitSet(documentCount);
+    	documentIndices.clear();
+    	
+    	for (Integer integer : stemIndices) {
+			BitSet temp = new BitSet(documentCount);
+			addTfByDocumentToBitSet(temp, stemsTfByDocument[integer.intValue()]);
+			documentIndices.or(temp);
+		}
+    	return documentIndices;
+    }
+    
+    private static BitSet intersectDocuments(List<BitSet> listOfDocumentIndicesForOneWord, int documentCount){
+		BitSet documentIndices = new BitSet(documentCount);
+    	documentIndices.set(0, documentCount-1);
+    	
+    	for (BitSet bitSet : listOfDocumentIndicesForOneWord) {
+			documentIndices.and(bitSet);
+		}
+    	
+    	return documentIndices;
+    }
+    
+    
+    private List<Integer> getIndicesOfStemsAllSynonymStemsWithItself(Map<String, Integer> stemImageStemIndexMap, char[] wordString, int ownIndex){
+    	List<String> imagesOfStemsAllSynonymStemsWithItself = getImagesOfStemsAllSynonymStemsWithItself(wordString);
+				
+    	List<Integer> indicesOfStemsAllSynonymStemsWithItself = new ArrayList<Integer>();
+    	indicesOfStemsAllSynonymStemsWithItself.add(ownIndex);
+		for (String stemImage : imagesOfStemsAllSynonymStemsWithItself) {
+			Integer stemIndex = stemImageStemIndexMap.get(stemImage);
+			//if the stem really contained in the document list
+			if(stemIndex != null){				
+				indicesOfStemsAllSynonymStemsWithItself.add(stemIndex);
+			}
+		}
+		
+		return indicesOfStemsAllSynonymStemsWithItself;
+    }
+
+    private List<String> getImagesOfStemsAllSynonymStemsWithItself(final char[] wordString){
+       	Synset[] synsets = wordnet.getSynsets(String.valueOf(wordString));
+    	List<String> synonymList = new ArrayList<String>();
+    	for (Synset synset : synsets) {
+			String[] wordForms = synset.getWordForms();
+			for (String string : wordForms) {
+				synonymList.add(string);
+			}
+		}
+		return synonymList;
+    }
+    
+    private Map<String, Integer> buildStemImageStemIndexMap(PreprocessingContext context){
+		
+    	Map<String, Integer> stemImageStemIndexMap = new HashMap<String, Integer>();
+    	
+    	char[][] image = context.allStems.image;
+		int index = 0;
+		for (char[] stem : image) {
+			stemImageStemIndexMap.put(String.valueOf(stem), index);
+			index++;
+		}
+		
+		return stemImageStemIndexMap;
+    }
+ }
