@@ -125,7 +125,7 @@ public class DocumentAssigner
             	//featureIndexin işaret ettiği wordün steminin tf by document dizisini parametre geçti.
                 
             	char[] wordString = image[featureIndex];
-             	List<Integer> indicesOfStemsAllSynonymStemsWithItself = getIndicesOfStemsAllSynonymStemsWithItself(stemImageStemIndexMap, wordString, wordsStemIndex[featureIndex]);
+             	List<Integer> indicesOfStemsAllSynonymStemsWithItself = getIndicesOfStemsAllSynonymStemsWithItself(stemImageStemIndexMap, wordString, wordsStemIndex[featureIndex], context);
           
              	documentIndices = addTfByDocumentToBitSet(stemsTfByDocument, 
              			indicesOfStemsAllSynonymStemsWithItself, 
@@ -154,7 +154,7 @@ public class DocumentAssigner
                         if (!TokenTypeUtils.isCommon(wordsTypes[wordIndex]))
                         {
                         	char[] wordString = image[wordIndex];
-							List<Integer> indicesOfStemsAllSynonymStemsWithItself = getIndicesOfStemsAllSynonymStemsWithItself(stemImageStemIndexMap, wordString, wordsStemIndex[wordIndex] );
+							List<Integer> indicesOfStemsAllSynonymStemsWithItself = getIndicesOfStemsAllSynonymStemsWithItself(stemImageStemIndexMap, wordString, wordsStemIndex[wordIndex], context );
                         	documentIndices = addTfByDocumentToBitSet(stemsTfByDocument, indicesOfStemsAllSynonymStemsWithItself, documentCount);
                         	documentIndicesList.add(documentIndices);
                            
@@ -231,8 +231,8 @@ public class DocumentAssigner
     }
     
     
-    private List<Integer> getIndicesOfStemsAllSynonymStemsWithItself(Map<String, Integer> stemImageStemIndexMap, char[] wordString, int ownIndex){
-    	List<String> imagesOfStemsAllSynonymStemsWithItself = getImagesOfStemsAllSynonymStemsWithItself(wordString);
+    private List<Integer> getIndicesOfStemsAllSynonymStemsWithItself(Map<String, Integer> stemImageStemIndexMap, char[] wordString, int ownIndex, PreprocessingContext context){
+    	List<String> imagesOfStemsAllSynonymStemsWithItself = getImagesOfStemsAllSynonymStems(wordString, context);
 				
     	List<Integer> indicesOfStemsAllSynonymStemsWithItself = new ArrayList<Integer>();
     	indicesOfStemsAllSynonymStemsWithItself.add(ownIndex);
@@ -247,13 +247,14 @@ public class DocumentAssigner
 		return indicesOfStemsAllSynonymStemsWithItself;
     }
 
-    private List<String> getImagesOfStemsAllSynonymStemsWithItself(final char[] wordString){
+    private List<String> getImagesOfStemsAllSynonymStems(final char[] wordString, PreprocessingContext context){
        	Synset[] synsets = wordnet.getSynsets(String.valueOf(wordString));
     	List<String> synonymList = new ArrayList<String>();
     	for (Synset synset : synsets) {
 			String[] wordForms = synset.getWordForms();
-			for (String string : wordForms) {
-				synonymList.add(string);
+			for (String synonymWord : wordForms) {
+				char[] stem = StemUtil.getStem(synonymWord.toCharArray(), context);
+				synonymList.add(String.valueOf(stem));
 			}
 		}
 		return synonymList;

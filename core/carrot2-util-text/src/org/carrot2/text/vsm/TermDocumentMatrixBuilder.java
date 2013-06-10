@@ -312,6 +312,8 @@ public class TermDocumentMatrixBuilder
             return new DenseDoubleMatrix2D(stemToRowIndex.size(), 0);
         }
 
+        //Yalnızca phraseler için matris oluşturuluyor. One word label candidate'ler burda
+        //dahil edilmiyor. Bkz. yukarıdan gelen parametrenin (featureIndex) gerçek değeri
         final DoubleMatrix2D phraseMatrix = new SparseDoubleMatrix2D(stemToRowIndex
             .size(), featureIndex.length);
 
@@ -327,6 +329,9 @@ public class TermDocumentMatrixBuilder
         {
             final int feature = featureIndex[i];
             final int [] wordIndices;
+            
+            //burda ise one word length label candidateler var gibi davranılmış
+            //sor forumda
             if (feature < wordCount)
             {
                 wordIndices = new int []

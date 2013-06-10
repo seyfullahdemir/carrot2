@@ -155,6 +155,8 @@ public class LingoClusteringAlgorithm extends ProcessingComponentBase implements
      */
     public final MultilingualClustering multilingualClustering = new MultilingualClustering();
 
+    public LingoProcessingContext lingoContext;
+    
     /**
      * Performs Lingo clustering of {@link #documents}.
      */
@@ -209,7 +211,7 @@ public class LingoClusteringAlgorithm extends ProcessingComponentBase implements
                 context);
             final ReducedVectorSpaceModelContext reducedVsmContext = new ReducedVectorSpaceModelContext(
                 vsmContext);
-            LingoProcessingContext lingoContext = new LingoProcessingContext(
+            lingoContext = new LingoProcessingContext(
                 reducedVsmContext);
 
             matrixBuilder.buildTermDocumentMatrix(vsmContext);
