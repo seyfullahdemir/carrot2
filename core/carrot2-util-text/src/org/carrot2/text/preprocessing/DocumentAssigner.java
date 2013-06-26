@@ -208,7 +208,7 @@ public class DocumentAssigner
     
     private static BitSet intersectDocuments(List<BitSet> listOfDocumentIndicesForOneWord, int documentCount){
 		BitSet documentIndices = new BitSet(documentCount);
-    	documentIndices.set(0, documentCount-1);
+    	documentIndices.set(0, documentCount);
     	
     	for (BitSet bitSet : listOfDocumentIndicesForOneWord) {
 			documentIndices.and(bitSet);
