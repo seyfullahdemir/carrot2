@@ -13,6 +13,7 @@
 package org.carrot2.text.vsm;
 
 import org.apache.mahout.math.matrix.*;
+import org.carrot2.text.preprocessing.ISynonymSupplier;
 import org.carrot2.text.preprocessing.PreprocessingContext;
 import org.carrot2.text.preprocessing.PreprocessingContext.AllLabels;
 import org.carrot2.text.preprocessing.PreprocessingContext.AllStems;
@@ -45,7 +46,7 @@ public class VectorSpaceModelContext
      * between rows of this matrix and {@link AllStems}, see {@link #stemToRowIndex}.
      * <p>
      * This matrix is produced by
-     * {@link TermDocumentMatrixBuilder#buildTermPhraseMatrix(VectorSpaceModelContext)}.
+     * {@link TermDocumentMatrixBuilder#buildTermPhraseMatrix(VectorSpaceModelContext, ISynonymSupplier)}.
      * </p>
      */
     public DoubleMatrix2D termPhraseMatrix;

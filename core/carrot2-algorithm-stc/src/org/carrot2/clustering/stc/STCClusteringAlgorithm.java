@@ -26,7 +26,11 @@ import org.carrot2.core.IClusteringAlgorithm;
 import org.carrot2.core.LanguageCode;
 import org.carrot2.core.ProcessingComponentBase;
 import org.carrot2.core.ProcessingException;
-import org.carrot2.core.attribute.*;
+import org.carrot2.core.attribute.AttributeNames;
+import org.carrot2.core.attribute.CommonAttributes;
+import org.carrot2.core.attribute.Init;
+import org.carrot2.core.attribute.Internal;
+import org.carrot2.core.attribute.Processing;
 import org.carrot2.text.analysis.ITokenizer;
 import org.carrot2.text.analysis.TokenTypeUtils;
 import org.carrot2.text.clustering.IMonolingualClusteringAlgorithm;
@@ -37,12 +41,23 @@ import org.carrot2.text.preprocessing.PreprocessingContext;
 import org.carrot2.text.preprocessing.pipeline.BasicPreprocessingPipeline;
 import org.carrot2.text.preprocessing.pipeline.IPreprocessingPipeline;
 import org.carrot2.util.PriorityQueue;
-import org.carrot2.util.attribute.*;
+import org.carrot2.util.attribute.Attribute;
+import org.carrot2.util.attribute.AttributeLevel;
+import org.carrot2.util.attribute.Bindable;
+import org.carrot2.util.attribute.DefaultGroups;
+import org.carrot2.util.attribute.Group;
+import org.carrot2.util.attribute.Input;
+import org.carrot2.util.attribute.Label;
+import org.carrot2.util.attribute.Level;
+import org.carrot2.util.attribute.Output;
+import org.carrot2.util.attribute.Required;
 import org.carrot2.util.attribute.constraint.DoubleRange;
 import org.carrot2.util.attribute.constraint.ImplementingClasses;
 import org.carrot2.util.attribute.constraint.IntRange;
 
-import com.carrotsearch.hppc.*;
+import com.carrotsearch.hppc.BitSet;
+import com.carrotsearch.hppc.BitSetIterator;
+import com.carrotsearch.hppc.IntStack;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
@@ -419,7 +434,7 @@ public final class STCClusteringAlgorithm extends ProcessingComponentBase implem
         /*
          * Step 1. Preprocessing: tokenization, stop word marking and stemming (if available).
          */
-        context = preprocessingPipeline.preprocess(documents, query, language);
+        context = preprocessingPipeline.preprocess(documents, query, language, null);
 
         /*
          * Step 2: Create a generalized suffix tree from phrases in the input.

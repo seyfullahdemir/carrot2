@@ -104,7 +104,7 @@ public class PhraseMatrixBuilderTest extends TermDocumentMatrixBuilderTestBase
     private void check(double [][] expectedPhraseMatrixElements)
     {
         buildTermDocumentMatrix();
-        matrixBuilder.buildTermPhraseMatrix(vsmContext);
+        matrixBuilder.buildTermPhraseMatrix(vsmContext, null);
         final DoubleMatrix2D phraseMatrix = vsmContext.termPhraseMatrix;
 
         if (expectedPhraseMatrixElements == null)

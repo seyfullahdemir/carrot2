@@ -14,7 +14,9 @@ package org.carrot2.text.preprocessing;
 
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.carrot2.core.Document;
 import org.carrot2.text.analysis.ITokenizer;
@@ -23,7 +25,8 @@ import org.carrot2.text.linguistic.LanguageModel;
 import org.carrot2.text.util.MutableCharArray;
 import org.carrot2.text.util.TabularOutput;
 
-import com.carrotsearch.hppc.*;
+import com.carrotsearch.hppc.BitSet;
+import com.carrotsearch.hppc.ObjectOpenHashSet;
 
 /**
  * Document preprocessing context provides low-level (usually integer-coded) data
@@ -46,6 +49,7 @@ public final class PreprocessingContext
     /** Language model to be used */
     public final LanguageModel language;
 
+    public final Map<String, Integer> stemImageStemIndexMap = new HashMap<String, Integer>();
     /**
      * Token interning cache. Token images are interned to save memory and allow reference
      * comparisons.
@@ -740,7 +744,8 @@ public final class PreprocessingContext
      */
     public void preprocessingFinished()
     {
-        this.tokenCache = null;
+    	//TODO ben sildim.
+        //this.tokenCache = null;
     }
 
     /**

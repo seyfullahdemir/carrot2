@@ -195,7 +195,7 @@ public class TermDocumentMatrixBuilderTest extends TermDocumentMatrixBuilderTest
         PreprocessingContext context = preprocessingPipeline.preprocess(
             this.context.documents, 
             this.context.query, 
-            this.context.language.getLanguageCode());
+            this.context.language.getLanguageCode(), null);
 
         // The preprocessing pipeline will produce increasing indices in tfByDocument,
         // so to reproduce the bug, we need to perturb them, e.g. reverse. 
@@ -217,7 +217,7 @@ public class TermDocumentMatrixBuilderTest extends TermDocumentMatrixBuilderTest
 
         vsmContext = new VectorSpaceModelContext(context);
         matrixBuilder.buildTermDocumentMatrix(vsmContext);
-        matrixBuilder.buildTermPhraseMatrix(vsmContext);
+        matrixBuilder.buildTermPhraseMatrix(vsmContext, null);
 
         int [] expectedTdMatrixStemIndices = new int []
         {

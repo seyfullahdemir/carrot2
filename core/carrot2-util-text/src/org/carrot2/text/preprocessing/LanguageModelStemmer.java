@@ -221,6 +221,8 @@ public final class LanguageModelStemmer
 
         // References in allWords
         context.allWords.stemIndex = stemIndexesArray;
+        
+        buildStemImageStemIndexMap(context);
     }
 
     /**
@@ -265,5 +267,15 @@ public final class LanguageModelStemmer
         }
 
         return queryWords;
+    }
+    
+   private void buildStemImageStemIndexMap(PreprocessingContext context){
+		  	
+    	char[][] image = context.allStems.image;
+		int index = 0;
+		for (char[] stem : image) {
+			context.stemImageStemIndexMap.put(String.valueOf(stem), index);
+			index++;
+		}
     }
 }

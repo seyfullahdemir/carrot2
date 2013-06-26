@@ -27,6 +27,7 @@ import org.carrot2.text.linguistic.IStemmerFactory;
 import org.carrot2.text.linguistic.ITokenizerFactory;
 import org.carrot2.text.linguistic.LanguageModel;
 import org.carrot2.text.preprocessing.CaseNormalizer;
+import org.carrot2.text.preprocessing.ISynonymSupplier;
 import org.carrot2.text.preprocessing.LanguageModelStemmer;
 import org.carrot2.text.preprocessing.PreprocessingContext;
 import org.carrot2.text.preprocessing.StopListMarker;
@@ -119,7 +120,7 @@ public class BasicPreprocessingPipeline implements IPreprocessingPipeline
      */
     @Override
     public PreprocessingContext preprocess(List<Document> documents, String query,
-        LanguageCode language)
+        LanguageCode language, ISynonymSupplier synonymSupplier)
     {
         final PreprocessingContext context = new PreprocessingContext(
             LanguageModel.create(language, stemmerFactory, tokenizerFactory,

@@ -20,8 +20,12 @@ import org.carrot2.core.LanguageCode;
 import org.carrot2.core.attribute.AttributeNames;
 import org.carrot2.text.linguistic.ILexicalDataFactory;
 import org.carrot2.text.linguistic.IStemmerFactory;
-import org.carrot2.text.preprocessing.pipeline.*;
-import org.carrot2.util.attribute.*;
+import org.carrot2.text.preprocessing.pipeline.BasicPreprocessingPipeline;
+import org.carrot2.text.preprocessing.pipeline.CompletePreprocessingPipeline;
+import org.carrot2.text.preprocessing.pipeline.IPreprocessingPipeline;
+import org.carrot2.util.attribute.AttributeBinder;
+import org.carrot2.util.attribute.AttributeBindingException;
+import org.carrot2.util.attribute.AttributeUtils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -121,7 +125,7 @@ class PreprocessingContextBuilder
         try
         {
             AttributeBinder.set(pipeline, attributes, true);
-            return pipeline.preprocess(documents, query, language);
+            return pipeline.preprocess(documents, query, language, null);
         }
         catch (AttributeBindingException e)
         {

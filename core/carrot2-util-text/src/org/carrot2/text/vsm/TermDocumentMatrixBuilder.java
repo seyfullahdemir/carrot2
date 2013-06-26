@@ -12,6 +12,8 @@
 
 package org.carrot2.text.vsm;
 
+import java.util.List;
+
 import org.apache.mahout.math.matrix.DoubleMatrix2D;
 import org.apache.mahout.math.matrix.impl.DenseDoubleMatrix2D;
 import org.apache.mahout.math.matrix.impl.SparseDoubleMatrix2D;
@@ -20,6 +22,7 @@ import org.carrot2.core.attribute.Internal;
 import org.carrot2.core.attribute.Processing;
 import org.carrot2.matrix.MatrixUtils;
 import org.carrot2.text.analysis.TokenTypeUtils;
+import org.carrot2.text.preprocessing.ISynonymSupplier;
 import org.carrot2.text.preprocessing.PreprocessingContext;
 import org.carrot2.util.attribute.Attribute;
 import org.carrot2.util.attribute.AttributeLevel;
@@ -203,27 +206,31 @@ public class TermDocumentMatrixBuilder
      * Builds a term-phrase matrix in the same space as the main term-document matrix. If
      * the processing context contains no phrases,
      * {@link VectorSpaceModelContext#termPhraseMatrix} will remain <code>null</code>.
+     * @param synonymSupplier TODO
      */
-    public void buildTermPhraseMatrix(VectorSpaceModelContext context)
+    public void buildTermPhraseMatrix(VectorSpaceModelContext context, ISynonymSupplier synonymSupplier)
     {
         final PreprocessingContext preprocessingContext = context.preprocessingContext;
         final IntIntOpenHashMap stemToRowIndex = context.stemToRowIndex;
         final int [] labelsFeatureIndex = preprocessingContext.allLabels.featureIndex;
         final int firstPhraseIndex = preprocessingContext.allLabels.firstPhraseIndex;
 
-        if (firstPhraseIndex >= 0 && stemToRowIndex.size() > 0)
+        //TODO if koşulu değişecek
+        if (stemToRowIndex.size() > 0)
         {
             // Build phrase matrix
-            int [] phraseFeatureIndices = new int [labelsFeatureIndex.length
-                - firstPhraseIndex];
-            for (int featureIndex = 0; featureIndex < phraseFeatureIndices.length; featureIndex++)
-            {
-                phraseFeatureIndices[featureIndex] = labelsFeatureIndex[featureIndex
-                    + firstPhraseIndex];
-            }
+        	//TODO buralar gidecek
+//            int [] phraseFeatureIndices = new int [labelsFeatureIndex.length
+//                - firstPhraseIndex];
+//            for (int featureIndex = 0; featureIndex < phraseFeatureIndices.length; featureIndex++)
+//            {
+//                phraseFeatureIndices[featureIndex] = labelsFeatureIndex[featureIndex
+//                    + firstPhraseIndex];
+//            }
 
+            //TODO parametre olarak labelsFeatureIndex verilecek
             final DoubleMatrix2D phraseMatrix = TermDocumentMatrixBuilder
-                .buildAlignedMatrix(context, phraseFeatureIndices, termWeighting);
+                .buildAlignedMatrix(context, labelsFeatureIndex, termWeighting, synonymSupplier);
             MatrixUtils.normalizeColumnL2(phraseMatrix, null);
             context.termPhraseMatrix = phraseMatrix.viewDice();
         }
@@ -302,9 +309,10 @@ public class TermDocumentMatrixBuilder
     /**
      * Builds a sparse term-document-like matrix for the provided matrixWordIndices in the
      * same term space as the original term-document matrix.
+     * @param synonymSupplier TODO
      */
     static DoubleMatrix2D buildAlignedMatrix(VectorSpaceModelContext vsmContext,
-        int [] featureIndex, ITermWeighting termWeighting)
+        int [] featureIndex, ITermWeighting termWeighting, ISynonymSupplier synonymSupplier)
     {
         final IntIntOpenHashMap stemToRowIndex = vsmContext.stemToRowIndex;
         if (featureIndex.length == 0)
@@ -314,6 +322,8 @@ public class TermDocumentMatrixBuilder
 
         //Yalnızca phraseler için matris oluşturuluyor. One word label candidate'ler burda
         //dahil edilmiyor. Bkz. yukarıdan gelen parametrenin (featureIndex) gerçek değeri
+        
+        //ben tekrar bütün labelllar için oluşturulacak şekilde güncelledim.
         final DoubleMatrix2D phraseMatrix = new SparseDoubleMatrix2D(stemToRowIndex
             .size(), featureIndex.length);
 
@@ -324,7 +334,9 @@ public class TermDocumentMatrixBuilder
         final int [][] phrasesWordIndices = preprocessingContext.allPhrases.wordIndices;
         final int documentCount = preprocessingContext.documents.size();
         final int wordCount = wordsStemIndex.length;
-
+        final int [] mostFrequentOriginalWordIndex = preprocessingContext.allStems.mostFrequentOriginalWordIndex;
+        final char [][] image = preprocessingContext.allWords.image;
+        
         for (int i = 0; i < featureIndex.length; i++)
         {
             final int feature = featureIndex[i];
@@ -344,18 +356,26 @@ public class TermDocumentMatrixBuilder
                 wordIndices = phrasesWordIndices[feature - wordCount];
             }
 
+            
+            //TODO phrase kelimelerini set ederken, phrase kelimelerinin stemlerini de set et :)
             for (int wordIndex = 0; wordIndex < wordIndices.length; wordIndex++)
             {
-                final int stemIndex = wordsStemIndex[wordIndices[wordIndex]];
-                if (stemToRowIndex.containsKey(stemIndex))
-                {
-                    final int rowIndex = stemToRowIndex.lget();
-
-                    double weight = termWeighting.calculateTermWeight(stemsTf[stemIndex],
-                        stemsTfByDocument[stemIndex].length / 2, documentCount);
-
-                    phraseMatrix.setQuick(rowIndex, i, weight);
-                }
+                final int ownStemIndex = wordsStemIndex[wordIndices[wordIndex]];
+                List<Integer> indicesOfStemsAllSynonymStemsWithItself = synonymSupplier.getIndicesOfStemsAllSynonymStemsWithItself(preprocessingContext.stemImageStemIndexMap, image[wordIndices[wordIndex]], ownStemIndex, preprocessingContext);
+                for (Integer stemIndex : indicesOfStemsAllSynonymStemsWithItself) {
+					
+                	if (stemToRowIndex.containsKey(stemIndex))
+                	{
+                		final int rowIndex = stemToRowIndex.lget();
+                		
+                		//stem kaç defa geçmiş, stem kaç dokümanda geçmiş, doküman sayısı
+                		double weight = termWeighting.calculateTermWeight(stemsTf[stemIndex],
+                				stemsTfByDocument[stemIndex].length / 2, documentCount);
+                		
+                		phraseMatrix.setQuick(rowIndex, i, weight);
+                	}
+				}
+                
             }
         }
 

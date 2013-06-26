@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.carrot2.workbench.feature"
-      label="Carrot2 Workbench Feature"
+      label="Carrot2 Workbench(Seyfullah) Feature"
       version="0.0.0.QUALIFIER"
       provider-name="Carrot2.org"
       plugin="org.carrot2.workbench.core">
 
    <description url="http://www.carrot2.org">
-      Carrot2 Workbench for text processing and clustering.
+      Carrot2 Workbench(Seyfullah) for text processing and clustering.
    </description>
 
    <copyright url="http://www.carrot2.org">

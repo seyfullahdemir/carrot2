@@ -230,7 +230,7 @@ public class DocumentAssignerTest extends LabelFilterTestBase
     private void check(int [][] expectedDocumentIndices, int expectedFirstPhraseIndex)
     {
         runPreprocessing();
-        documentAssigner.assign(context);
+        documentAssigner.assign(context, null);
 
         assertThat(context.allLabels.firstPhraseIndex).as("allLabels.firstPhraseIndex")
             .isEqualTo(expectedFirstPhraseIndex);

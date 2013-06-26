@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Carrot2 Workbench" id="org.carrot2.workbench.core.product" application="org.carrot2.workbench.core.application" useFeatures="true" includeLaunchers="true">
+<product name="Carrot2 Workbench(Seyfullah)" id="org.carrot2.workbench.core.product" application="org.carrot2.workbench.core.application" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.carrot2.workbench.core/icons/logotype/128x128x32.png"/>
       <text>
-         Carrot2 Workbench
+         Carrot2 Workbench(Seyfullah)
 
 (c) Carrot2 developers.  All rights reserved.
 Visit http://carrot2.org for more information.

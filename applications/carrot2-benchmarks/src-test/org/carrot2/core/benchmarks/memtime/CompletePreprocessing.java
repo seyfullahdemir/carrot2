@@ -118,6 +118,6 @@ public final class CompletePreprocessing extends ProcessingComponentBase impleme
     private void cluster(LanguageCode language)
     {
         clusters = new ArrayList<Cluster>();
-        preprocessingPipeline.preprocess(documents, null, language);
+        preprocessingPipeline.preprocess(documents, null, language, null);
     }
 }

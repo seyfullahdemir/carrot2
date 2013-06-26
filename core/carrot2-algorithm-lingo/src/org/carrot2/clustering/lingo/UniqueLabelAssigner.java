@@ -12,12 +12,14 @@
 
 package org.carrot2.clustering.lingo;
 
-import org.apache.mahout.math.matrix.*;
+import org.apache.mahout.math.matrix.DoubleMatrix2D;
 import org.carrot2.text.preprocessing.PreprocessingContext;
 import org.carrot2.util.Pair;
 import org.carrot2.util.attribute.Bindable;
 
-import com.carrotsearch.hppc.*;
+import com.carrotsearch.hppc.DoubleArrayList;
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntIntOpenHashMap;
 
 /**
  * Assigns unique labels to each base vector using a greedy algorithm. For each base
@@ -39,26 +41,38 @@ public class UniqueLabelAssigner implements ILabelAssigner
         final int firstPhraseIndex = preprocessingContext.allLabels.firstPhraseIndex;
         final int [] labelsFeatureIndex = preprocessingContext.allLabels.featureIndex;
         final int [] mostFrequentOriginalWordIndex = preprocessingContext.allStems.mostFrequentOriginalWordIndex;
-        final int desiredClusterCount = stemCos.columns();
+        final int desiredClusterCount = phraseCos.columns();
 
         final IntArrayList clusterLabelFeatureIndex = new IntArrayList(
             desiredClusterCount);
         final DoubleArrayList clusterLabelScore = new DoubleArrayList(desiredClusterCount);
         for (int label = 0; label < desiredClusterCount; label++)
         {
-            final Pair<Integer, Integer> stemMax = max(stemCos);
+            //final Pair<Integer, Integer> stemMax = max(stemCos);
             final Pair<Integer, Integer> phraseMax = max(phraseCos);
 
-            if (stemMax == null && phraseMax == null)
+            //TODO
+            if (phraseMax == null)
             {
                 break;
             }
 
+            /*
             double stemScore = stemMax != null ? stemCos.getQuick(stemMax.objectA,
                 stemMax.objectB) : -1;
+                */
             double phraseScore = phraseMax != null ? phraseCos.getQuick(
                 phraseMax.objectA, phraseMax.objectB) : -1;
 
+            phraseCos.viewRow(phraseMax.objectA).assign(0);
+            phraseCos.viewColumn(phraseMax.objectB).assign(0);
+            
+            clusterLabelFeatureIndex.add(labelsFeatureIndex[phraseMax.objectA
+                                                            ]);
+                                                        clusterLabelScore.add(phraseScore);
+
+
+/*
             if (phraseScore > stemScore)
             {
                 phraseCos.viewRow(phraseMax.objectA).assign(0);
@@ -83,6 +97,7 @@ public class UniqueLabelAssigner implements ILabelAssigner
                         .get(stemMax.objectA)]);
                 clusterLabelScore.add(stemScore);
             }
+*/
         }
 
         context.clusterLabelFeatureIndex = clusterLabelFeatureIndex.toArray();

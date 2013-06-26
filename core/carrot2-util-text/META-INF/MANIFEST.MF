@@ -11,6 +11,7 @@ Require-Bundle:
  com.carrotsearch.hppc;bundle-version="0.3.0";visibility:=reexport
 Bundle-ClassPath: META-INF/,
  .,
+ jaws-bin.jar,
  src-resources/
 Export-Package: org.carrot2.text.analysis,
  org.carrot2.text.clustering,
@@ -19,6 +20,8 @@ Export-Package: org.carrot2.text.analysis,
  org.carrot2.text.preprocessing.filter,
  org.carrot2.text.preprocessing.pipeline,
  org.carrot2.text.util,
- org.carrot2.text.vsm
+ org.carrot2.text.vsm,
+ edu.smu.tspell.wordnet
+ 
 Bundle-Vendor: Carrot2.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

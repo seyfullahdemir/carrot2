@@ -29,8 +29,10 @@ import org.carrot2.core.attribute.Processing;
 import org.carrot2.text.clustering.IMonolingualClusteringAlgorithm;
 import org.carrot2.text.clustering.MultilingualClustering;
 import org.carrot2.text.clustering.MultilingualClustering.LanguageAggregationStrategy;
+import org.carrot2.text.preprocessing.ISynonymSupplier;
 import org.carrot2.text.preprocessing.LabelFormatter;
 import org.carrot2.text.preprocessing.PreprocessingContext;
+import org.carrot2.text.preprocessing.WordnetSynonymSupplier;
 import org.carrot2.text.preprocessing.pipeline.CompletePreprocessingPipeline;
 import org.carrot2.text.preprocessing.pipeline.IPreprocessingPipeline;
 import org.carrot2.text.vsm.ReducedVectorSpaceModelContext;
@@ -130,6 +132,8 @@ public class LingoClusteringAlgorithm extends ProcessingComponentBase implements
     @ImplementingClasses(classes = {}, strict = false)
     public IPreprocessingPipeline preprocessingPipeline = new CompletePreprocessingPipeline();
 
+    
+    public final ISynonymSupplier synonymSupplier = new WordnetSynonymSupplier();
     /**
      * Term-document matrix builder for the algorithm, contains bindable attributes.
      */
@@ -200,7 +204,7 @@ public class LingoClusteringAlgorithm extends ProcessingComponentBase implements
     {
         // Preprocessing of documents
         final PreprocessingContext context = preprocessingPipeline.preprocess(documents,
-            query, language);
+            query, language, synonymSupplier);
 
         // Further processing only if there are words to process
         clusters = Lists.newArrayList();
@@ -215,7 +219,7 @@ public class LingoClusteringAlgorithm extends ProcessingComponentBase implements
                 reducedVsmContext);
 
             matrixBuilder.buildTermDocumentMatrix(vsmContext);
-            matrixBuilder.buildTermPhraseMatrix(vsmContext);
+            matrixBuilder.buildTermPhraseMatrix(vsmContext, synonymSupplier);
 
             matrixReducer.reduce(reducedVsmContext,
                 computeClusterCount(desiredClusterCountBase, documents.size()));

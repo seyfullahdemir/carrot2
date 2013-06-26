@@ -37,11 +37,11 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="org.carrot2.workbench.core.application"
-            name="Carrot2 Workbench"
+            name="Carrot2 Workbench(Seyfullah)"
             description="%productBlurb">
          <property
                name="appName"
-               value="Carrot2 Workbench">
+               value="Carrot2 Workbench(Seyfullah)">
          </property>
          <property
                name="windowImages"
@@ -49,7 +49,7 @@
          </property>
          <property
                name="aboutText"
-               value="Carrot2 Workbench&#x0A;&#x0A;(c) Carrot2 developers.  All rights reserved.&#x0A;Visit http://carrot2.org for more information.&#x0A;&#x0A;This product includes software developed by the&#x0A;Apache Software Foundation http://www.apache.org/.">
+               value="Carrot2 Workbench(Seyfullah)&#x0A;&#x0A;(c) Carrot2 developers.  All rights reserved.&#x0A;Visit http://carrot2.org for more information.&#x0A;&#x0A;This product includes software developed by the&#x0A;Apache Software Foundation http://www.apache.org/.">
          </property>
          <property
                name="aboutImage"

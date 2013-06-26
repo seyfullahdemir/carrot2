@@ -19,6 +19,7 @@ import org.carrot2.core.LanguageCode;
 import org.carrot2.text.linguistic.LanguageModel;
 import org.carrot2.text.preprocessing.CaseNormalizer;
 import org.carrot2.text.preprocessing.DocumentAssigner;
+import org.carrot2.text.preprocessing.ISynonymSupplier;
 import org.carrot2.text.preprocessing.LabelFilterProcessor;
 import org.carrot2.text.preprocessing.LanguageModelStemmer;
 import org.carrot2.text.preprocessing.PhraseExtractor;
@@ -37,7 +38,7 @@ import org.carrot2.util.attribute.Bindable;
  * <li>{@link StopListMarker#mark(PreprocessingContext)}</li>
  * <li>{@link PhraseExtractor#extractPhrases(PreprocessingContext)}</li>
  * <li>{@link LabelFilterProcessor#process(PreprocessingContext)}</li>
- * <li>{@link DocumentAssigner#assign(PreprocessingContext)}</li>
+ * <li>{@link DocumentAssigner#assign(PreprocessingContext, ISynonymSupplier)}</li>
  * </ol>
  */
 @Bindable(prefix = "PreprocessingPipeline")
@@ -60,7 +61,7 @@ public class CompletePreprocessingPipeline extends BasicPreprocessingPipeline
 
     @Override
     public PreprocessingContext preprocess(List<Document> documents, String query,
-        LanguageCode language)
+        LanguageCode language, ISynonymSupplier synonymSupplier)
     {
         final PreprocessingContext context = new PreprocessingContext(
             LanguageModel.create(language, stemmerFactory, tokenizerFactory,
@@ -72,7 +73,7 @@ public class CompletePreprocessingPipeline extends BasicPreprocessingPipeline
         stopListMarker.mark(context);
         phraseExtractor.extractPhrases(context);
         labelFilterProcessor.process(context);
-        documentAssigner.assign(context);
+        documentAssigner.assign(context, synonymSupplier);
 
         context.preprocessingFinished();
         return context;

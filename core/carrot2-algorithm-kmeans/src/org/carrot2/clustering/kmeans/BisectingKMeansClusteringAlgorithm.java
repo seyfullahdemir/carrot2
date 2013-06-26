@@ -227,7 +227,7 @@ public class BisectingKMeansClusteringAlgorithm extends ProcessingComponentBase 
     {
         // Preprocessing of documents
         final PreprocessingContext preprocessingContext = 
-            preprocessingPipeline.preprocess(documents, null, language);
+            preprocessingPipeline.preprocess(documents, null, language, null);
 
         // Add trivial AllLabels so that we can reuse the common TD matrix builder
         final int [] stemsMfow = preprocessingContext.allStems.mostFrequentOriginalWordIndex;
@@ -255,7 +255,7 @@ public class BisectingKMeansClusteringAlgorithm extends ProcessingComponentBase 
                 vsmContext);
 
             matrixBuilder.buildTermDocumentMatrix(vsmContext);
-            matrixBuilder.buildTermPhraseMatrix(vsmContext);
+            matrixBuilder.buildTermPhraseMatrix(vsmContext, null);
 
             // Prepare rowIndex -> stemIndex mapping for labeling
             final IntIntOpenHashMap rowToStemIndex = new IntIntOpenHashMap();

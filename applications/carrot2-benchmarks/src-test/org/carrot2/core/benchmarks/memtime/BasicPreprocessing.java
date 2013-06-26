@@ -125,6 +125,6 @@ public final class BasicPreprocessing extends ProcessingComponentBase implements
     private void cluster(LanguageCode language)
     {
         clusters = new ArrayList<Cluster>();
-        context = preprocessingPipeline.preprocess(documents, null, language);
+        context = preprocessingPipeline.preprocess(documents, null, language, null);
     }
 }
