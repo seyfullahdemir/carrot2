@@ -356,29 +356,45 @@ public class TermDocumentMatrixBuilder
                 wordIndices = phrasesWordIndices[feature - wordCount];
             }
 
-            
             //TODO phrase kelimelerini set ederken, phrase kelimelerinin stemlerini de set et :)
             for (int wordIndex = 0; wordIndex < wordIndices.length; wordIndex++)
             {
-                final int ownStemIndex = wordsStemIndex[wordIndices[wordIndex]];
-                List<Integer> indicesOfStemsAllSynonymStemsWithItself = synonymSupplier.getIndicesOfStemsAllSynonymStemsWithItself(preprocessingContext.stemImageStemIndexMap, image[wordIndices[wordIndex]], ownStemIndex, preprocessingContext);
-                for (Integer stemIndex : indicesOfStemsAllSynonymStemsWithItself) {
-					
-                	if (stemToRowIndex.containsKey(stemIndex))
-                	{
-                		final int rowIndex = stemToRowIndex.lget();
-                		
-                		//stem kaç defa geçmiş, stem kaç dokümanda geçmiş, doküman sayısı
-                		double weight = termWeighting.calculateTermWeight(stemsTf[stemIndex],
-                				stemsTfByDocument[stemIndex].length / 2, documentCount);
-                		
-                		phraseMatrix.setQuick(rowIndex, i, weight);
-                	}
-				}
+        		final int ownStemIndex = wordsStemIndex[wordIndices[wordIndex]];
+        		
+        		if (feature < wordCount)
+        		{
+        			stemMatristeGeciyorsaPhraseMatristeAgirliklandirarakSetEt(termWeighting, stemToRowIndex, phraseMatrix, stemsTf, stemsTfByDocument, documentCount, i, ownStemIndex);
+        		}
+        		else{            		        		        		
+	        		List<Integer> indicesOfStemsAllSynonymStemsWithItself = synonymSupplier.getIndicesOfStemsAllSynonymStemsWithItself(preprocessingContext.stemImageStemIndexMap, image[wordIndices[wordIndex]], ownStemIndex, preprocessingContext);
+	        		for (Integer stemIndex : indicesOfStemsAllSynonymStemsWithItself) {
+	        			
+	        			stemMatristeGeciyorsaPhraseMatristeAgirliklandirarakSetEt(termWeighting, stemToRowIndex, phraseMatrix,
+								stemsTf, stemsTfByDocument, documentCount, i,
+								stemIndex);
+	        		}
+            	}
                 
             }
         }
 
         return phraseMatrix;
     }
+
+	private static void stemMatristeGeciyorsaPhraseMatristeAgirliklandirarakSetEt(ITermWeighting termWeighting,
+			final IntIntOpenHashMap stemToRowIndex,
+			final DoubleMatrix2D phraseMatrix, final int[] stemsTf,
+			final int[][] stemsTfByDocument, final int documentCount, int labelIndex,
+			Integer stemIndex) {
+		if (stemToRowIndex.containsKey(stemIndex))
+		{
+			final int rowIndex = stemToRowIndex.lget();
+			
+			//stem kaç defa geçmiş, stem kaç dokümanda geçmiş, doküman sayısı
+			double weight = termWeighting.calculateTermWeight(stemsTf[stemIndex],
+					stemsTfByDocument[stemIndex].length / 2, documentCount);
+			
+			phraseMatrix.setQuick(rowIndex, labelIndex, weight);
+		}
+	}
 }
