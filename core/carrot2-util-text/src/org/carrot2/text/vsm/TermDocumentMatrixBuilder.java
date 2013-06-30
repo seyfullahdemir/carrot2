@@ -360,20 +360,15 @@ public class TermDocumentMatrixBuilder
             for (int wordIndex = 0; wordIndex < wordIndices.length; wordIndex++)
             {
         		final int ownStemIndex = wordsStemIndex[wordIndices[wordIndex]];
-        		
-        		if (feature < wordCount)
-        		{
-        			stemMatristeGeciyorsaPhraseMatristeAgirliklandirarakSetEt(termWeighting, stemToRowIndex, phraseMatrix, stemsTf, stemsTfByDocument, documentCount, i, ownStemIndex);
+        		  		        		
+        		List<Integer> indicesOfStemsAllSynonymStemsWithItself = synonymSupplier.getIndicesOfStemsAllSynonymStemsWithItself(preprocessingContext.stemImageStemIndexMap, image[wordIndices[wordIndex]], ownStemIndex, preprocessingContext);
+        		for (Integer stemIndex : indicesOfStemsAllSynonymStemsWithItself) {
+        			
+        			stemMatristeGeciyorsaPhraseMatristeAgirliklandirarakSetEt(termWeighting, stemToRowIndex, phraseMatrix,
+							stemsTf, stemsTfByDocument, documentCount, i,
+							stemIndex);
         		}
-        		else{            		        		        		
-	        		List<Integer> indicesOfStemsAllSynonymStemsWithItself = synonymSupplier.getIndicesOfStemsAllSynonymStemsWithItself(preprocessingContext.stemImageStemIndexMap, image[wordIndices[wordIndex]], ownStemIndex, preprocessingContext);
-	        		for (Integer stemIndex : indicesOfStemsAllSynonymStemsWithItself) {
-	        			
-	        			stemMatristeGeciyorsaPhraseMatristeAgirliklandirarakSetEt(termWeighting, stemToRowIndex, phraseMatrix,
-								stemsTf, stemsTfByDocument, documentCount, i,
-								stemIndex);
-	        		}
-            	}
+            	
                 
             }
         }
