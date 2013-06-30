@@ -16,17 +16,29 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.mahout.math.function.Functions;
-import org.apache.mahout.math.matrix.*;
+import org.apache.mahout.math.matrix.DoubleMatrix2D;
 import org.carrot2.core.attribute.Processing;
 import org.carrot2.text.preprocessing.PreprocessingContext;
 import org.carrot2.text.vsm.ITermWeighting;
 import org.carrot2.text.vsm.VectorSpaceModelContext;
 import org.carrot2.util.GraphUtils;
 import org.carrot2.util.LinearApproximation;
-import org.carrot2.util.attribute.*;
-import org.carrot2.util.attribute.constraint.*;
+import org.carrot2.util.attribute.Attribute;
+import org.carrot2.util.attribute.AttributeLevel;
+import org.carrot2.util.attribute.Bindable;
+import org.carrot2.util.attribute.DefaultGroups;
+import org.carrot2.util.attribute.Group;
+import org.carrot2.util.attribute.Input;
+import org.carrot2.util.attribute.Label;
+import org.carrot2.util.attribute.Level;
+import org.carrot2.util.attribute.Required;
+import org.carrot2.util.attribute.constraint.DoubleRange;
+import org.carrot2.util.attribute.constraint.ImplementingClasses;
+import org.carrot2.util.attribute.constraint.IntRange;
 
-import com.carrotsearch.hppc.*;
+import com.carrotsearch.hppc.BitSet;
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntIntOpenHashMap;
 import com.carrotsearch.hppc.cursors.IntIntCursor;
 
 /**
@@ -175,19 +187,18 @@ public class ClusterBuilder
         final double [] featureScores = featureScorer != null ? featureScorer
             .getFeatureScores(context) : null;
         final int [] wordLabelIndex = new int [wordCount];
-        if (featureScores != null)
+        
+        // Word index to feature index mapping
+        Arrays.fill(wordLabelIndex, -1);
+        for (int i = 0; i < labelsFeatureIndex.length; i++)
         {
-            // Word index to feature index mapping
-            Arrays.fill(wordLabelIndex, -1);
-            for (int i = 0; i < labelsFeatureIndex.length; i++)
+            final int featureIndex = labelsFeatureIndex[i];
+            if (featureIndex < wordCount)
             {
-                final int featureIndex = labelsFeatureIndex[i];
-                if (featureIndex < wordCount)
-                {
-                    wordLabelIndex[featureIndex] = i;
-                }
+                wordLabelIndex[featureIndex] = i;
             }
         }
+       
 
         // Prepare base vector -- single stem cosine matrix.
         final DoubleMatrix2D stemCos = reducedTdMatrix.viewSelection(
