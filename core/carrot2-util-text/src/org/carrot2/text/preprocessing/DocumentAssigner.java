@@ -111,12 +111,8 @@ public class DocumentAssigner
             {
             	//featureIndexin işaret ettiği wordün steminin tf by document dizisini parametre geçti.
                 
-            	char[] wordString = image[featureIndex];
-             	List<Integer> indicesOfStemsAllSynonymStemsWithItself =  synonymSupplier.getIndicesOfStemsAllSynonymStemsWithItself(context.stemImageStemIndexMap, wordString, wordsStemIndex[featureIndex], context);
-          
-             	documentIndices = addTfByDocumentToBitSet(stemsTfByDocument, 
-             			indicesOfStemsAllSynonymStemsWithItself, 
-             			documentCount);
+            	 addTfByDocumentToBitSet(documentIndices,
+                         stemsTfByDocument[wordsStemIndex[featureIndex]]);
              	
             }
             else
