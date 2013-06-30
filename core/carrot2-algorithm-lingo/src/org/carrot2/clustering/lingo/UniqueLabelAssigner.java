@@ -41,38 +41,26 @@ public class UniqueLabelAssigner implements ILabelAssigner
         final int firstPhraseIndex = preprocessingContext.allLabels.firstPhraseIndex;
         final int [] labelsFeatureIndex = preprocessingContext.allLabels.featureIndex;
         final int [] mostFrequentOriginalWordIndex = preprocessingContext.allStems.mostFrequentOriginalWordIndex;
-        final int desiredClusterCount = phraseCos.columns();
+        final int desiredClusterCount = stemCos.columns();
 
         final IntArrayList clusterLabelFeatureIndex = new IntArrayList(
             desiredClusterCount);
         final DoubleArrayList clusterLabelScore = new DoubleArrayList(desiredClusterCount);
         for (int label = 0; label < desiredClusterCount; label++)
         {
-            //final Pair<Integer, Integer> stemMax = max(stemCos);
+            final Pair<Integer, Integer> stemMax = max(stemCos);
             final Pair<Integer, Integer> phraseMax = max(phraseCos);
 
-            //TODO
-            if (phraseMax == null)
+            if (stemMax == null && phraseMax == null)
             {
                 break;
             }
 
-            /*
             double stemScore = stemMax != null ? stemCos.getQuick(stemMax.objectA,
                 stemMax.objectB) : -1;
-                */
             double phraseScore = phraseMax != null ? phraseCos.getQuick(
                 phraseMax.objectA, phraseMax.objectB) : -1;
 
-            phraseCos.viewRow(phraseMax.objectA).assign(0);
-            phraseCos.viewColumn(phraseMax.objectB).assign(0);
-            
-            clusterLabelFeatureIndex.add(labelsFeatureIndex[phraseMax.objectA
-                                                            ]);
-                                                        clusterLabelScore.add(phraseScore);
-
-
-/*
             if (phraseScore > stemScore)
             {
                 phraseCos.viewRow(phraseMax.objectA).assign(0);
@@ -97,7 +85,6 @@ public class UniqueLabelAssigner implements ILabelAssigner
                         .get(stemMax.objectA)]);
                 clusterLabelScore.add(stemScore);
             }
-*/
         }
 
         context.clusterLabelFeatureIndex = clusterLabelFeatureIndex.toArray();

@@ -216,21 +216,21 @@ public class TermDocumentMatrixBuilder
         final int firstPhraseIndex = preprocessingContext.allLabels.firstPhraseIndex;
 
         //TODO if koşulu değişecek
-        if (stemToRowIndex.size() > 0)
+        if (firstPhraseIndex >= 0 && stemToRowIndex.size() > 0)
         {
             // Build phrase matrix
         	//TODO buralar gidecek
-//            int [] phraseFeatureIndices = new int [labelsFeatureIndex.length
-//                - firstPhraseIndex];
-//            for (int featureIndex = 0; featureIndex < phraseFeatureIndices.length; featureIndex++)
-//            {
-//                phraseFeatureIndices[featureIndex] = labelsFeatureIndex[featureIndex
-//                    + firstPhraseIndex];
-//            }
+            int [] phraseFeatureIndices = new int [labelsFeatureIndex.length
+                - firstPhraseIndex];
+            for (int featureIndex = 0; featureIndex < phraseFeatureIndices.length; featureIndex++)
+            {
+                phraseFeatureIndices[featureIndex] = labelsFeatureIndex[featureIndex
+                    + firstPhraseIndex];
+            }
 
             //TODO parametre olarak labelsFeatureIndex verilecek
             final DoubleMatrix2D phraseMatrix = TermDocumentMatrixBuilder
-                .buildAlignedMatrix(context, labelsFeatureIndex, termWeighting, synonymSupplier);
+                .buildAlignedMatrix(context, phraseFeatureIndices, termWeighting, synonymSupplier);
             MatrixUtils.normalizeColumnL2(phraseMatrix, null);
             context.termPhraseMatrix = phraseMatrix.viewDice();
         }

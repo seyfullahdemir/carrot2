@@ -39,6 +39,7 @@ import org.carrot2.util.attribute.constraint.IntRange;
 import com.carrotsearch.hppc.BitSet;
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntIntOpenHashMap;
+import com.carrotsearch.hppc.cursors.IntIntCursor;
 
 /**
  * Builds cluster labels based on the reduced term-document matrix and assigns documents
@@ -160,9 +161,6 @@ public class ClusterBuilder
         // candidates.
         
         //one word label'ların kelimesine karşılık gelen stem indislerine karşılık gelen bitler işaretlendi.
-
-/*
- *
         final BitSet oneWordCandidateStemIndices = new BitSet();
         for (int i = 0; i < labelsFeatureIndex.length; i++)
         {
@@ -173,11 +171,9 @@ public class ClusterBuilder
             }
             oneWordCandidateStemIndices.set(wordsStemIndex[featureIndex]);
         }
-*
-*/
+
         //one word length label word stemlerine karşılık gelen td matrix rowları filteredRows listesine alındı.
-/*
- * 
+ 
         final IntIntOpenHashMap stemToRowIndex = vsmContext.stemToRowIndex;
         final IntIntOpenHashMap filteredRowToStemIndex = new IntIntOpenHashMap();
         final IntArrayList filteredRows = new IntArrayList();
@@ -190,17 +186,10 @@ public class ClusterBuilder
                 filteredRows.add(it.value);
             }
         }
- *
- *
- */
-        
-        
-        
         // Request additional feature scores
         final double [] featureScores = featureScorer != null ? featureScorer
             .getFeatureScores(context) : null;
-
-            final int [] wordLabelIndex = new int [wordCount];
+        final int [] wordLabelIndex = new int [wordCount];
 
         // Word index to feature index mapping
         
@@ -216,7 +205,6 @@ public class ClusterBuilder
        
 
         // Prepare base vector -- single stem cosine matrix.
-/*
         final DoubleMatrix2D stemCos = reducedTdMatrix.viewSelection(
             filteredRows.toArray(), null).copy();
         for (int r = 0; r < stemCos.rows(); r++)
@@ -232,7 +220,7 @@ public class ClusterBuilder
 
             stemCos.viewRow(r).assign(Functions.mult(penalty));
         }
-*/
+
         // Prepare base vector -- phrase cosine matrix
         final DoubleMatrix2D phraseMatrix = vsmContext.termPhraseMatrix;
         final int firstPhraseIndex = preprocessingContext.allLabels.firstPhraseIndex;
@@ -254,57 +242,38 @@ public class ClusterBuilder
             // penalty factor, if the phrase is longer than penalty start length
             for (int row = 0; row < phraseCos.rows(); row++)
             {
-            	//TODO
-            	final int feature = labelsFeatureIndex[row];
-            	if (feature < wordCount){
-            		
-            		//TODO bug olabilir?
-                    final int labelIndex = wordLabelIndex[feature];
-                    double penalty = getDocumentCountPenalty(labelIndex, documentCount,
-                        labelsDocumentIndices);
-                    if (featureScores != null)
-                    {
-                        penalty *= featureScores[labelIndex];
-                    }
-
-                    phraseCos.viewRow(row).assign(Functions.mult(penalty));
-
-            	}
-            	else{
-            		//TODO else içine taşındı.
-            		final int phraseFeature = labelsFeatureIndex[row];
-            		int [] phraseWordIndices = phrasesWordIndices[phraseFeature - wordCount];
-            		
-            		double penalty;
-            		if (phraseWordIndices.length >= phraseLengthPenaltyStop)
-            		{
-            			penalty = 0;
-            		}
-            		else
-            		{
-            			//TODO index
-            			penalty = getDocumentCountPenalty(row,
-            					documentCount, labelsDocumentIndices);
-            			
-            			if (phraseWordIndices.length >= phraseLengthPenaltyStart)
-            			{
-            				penalty *= 1 - penaltyStep
-            						* (phraseWordIndices.length - phraseLengthPenaltyStart + 1);
-            			}
-            			if (featureScores != null)
-            			{
-            				//TODO index
-            				penalty *= featureScores[row];
-            			}
-            		}
-            		phraseCos.viewRow(row).assign(Functions.mult(penalty * phraseLabelBoost));
-            	}
-            		
-            }
+        		//TODO else içine taşındı.
+        		final int phraseFeature = labelsFeatureIndex[row + firstPhraseIndex];
+        		int [] phraseWordIndices = phrasesWordIndices[phraseFeature - wordCount];
+        		
+        		double penalty;
+        		if (phraseWordIndices.length >= phraseLengthPenaltyStop)
+        		{
+        			penalty = 0;
+        		}
+        		else
+        		{
+        			//TODO index
+        			penalty = getDocumentCountPenalty(row + firstPhraseIndex,
+        					documentCount, labelsDocumentIndices);
+        			
+        			if (phraseWordIndices.length >= phraseLengthPenaltyStart)
+        			{
+        				penalty *= 1 - penaltyStep
+        						* (phraseWordIndices.length - phraseLengthPenaltyStart + 1);
+        			}
+        			if (featureScores != null)
+        			{
+        				//TODO index
+        				penalty *= featureScores[row + firstPhraseIndex];
+        			}
+        		}
+        		phraseCos.viewRow(row).assign(Functions.mult(penalty * phraseLabelBoost));
+        	}
         }
 
         // Assign labels to base vectors
-        labelAssigner.assignLabels(context, null, null, phraseCos);
+        labelAssigner.assignLabels(context, stemCos, filteredRowToStemIndex, phraseCos);
     }
 
     private double getDocumentCountPenalty(int labelIndex, int documentCount,
