@@ -12,8 +12,6 @@
 
 package org.carrot2.text.vsm;
 
-import java.util.List;
-
 import org.apache.mahout.math.matrix.DoubleMatrix2D;
 import org.apache.mahout.math.matrix.impl.DenseDoubleMatrix2D;
 import org.apache.mahout.math.matrix.impl.SparseDoubleMatrix2D;
@@ -360,20 +358,7 @@ public class TermDocumentMatrixBuilder
             for (int wordIndex = 0; wordIndex < wordIndices.length; wordIndex++)
             {
         		final int ownStemIndex = wordsStemIndex[wordIndices[wordIndex]];
-        		
-        		if (feature < wordCount)
-        		{
-        			stemMatristeGeciyorsaPhraseMatristeAgirliklandirarakSetEt(termWeighting, stemToRowIndex, phraseMatrix, stemsTf, stemsTfByDocument, documentCount, i, ownStemIndex);
-        		}
-        		else{            		        		        		
-	        		List<Integer> indicesOfStemsAllSynonymStemsWithItself = synonymSupplier.getIndicesOfStemsAllSynonymStemsWithItself(preprocessingContext.stemImageStemIndexMap, image[wordIndices[wordIndex]], ownStemIndex, preprocessingContext);
-	        		for (Integer stemIndex : indicesOfStemsAllSynonymStemsWithItself) {
-	        			
-	        			stemMatristeGeciyorsaPhraseMatristeAgirliklandirarakSetEt(termWeighting, stemToRowIndex, phraseMatrix,
-								stemsTf, stemsTfByDocument, documentCount, i,
-								stemIndex);
-	        		}
-            	}
+    			stemMatristeGeciyorsaPhraseMatristeAgirliklandirarakSetEt(termWeighting, stemToRowIndex, phraseMatrix, stemsTf, stemsTfByDocument, documentCount, i, ownStemIndex);
                 
             }
         }
