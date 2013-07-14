@@ -7,7 +7,7 @@ public class ExtendedClusterBuilder extends ClusterBuilder {
 	@Override
 	void buildLabels(LingoProcessingContext context,
 			ITermWeighting termWeighting) {
-		labelAssigner = new ExclusiveDefinitionLabelAssigner1();
+		labelAssigner = new ExclusiveDefinitionLabelAssigner2();
 		labelAssigner.assignLabels(context, null, null, null);
 	}
 }
