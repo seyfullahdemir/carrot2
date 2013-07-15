@@ -30,7 +30,7 @@ public class ExclusiveDefinitionLabelAssigner2 implements ILabelAssigner {
 		DoubleMatrix2D abstractConceptTermMatrix = termAbstractConceptMatrix.viewDice();
 		
 
-		DoubleMatrix2D abstractConceptdocumentMatrix = abstractConceptTermMatrix.zMult(termDocumentMatrix, null, 1, 0, false, false);
+		DoubleMatrix2D abstractConceptdocumentMatrix = coefficientMatrix.viewDice();
 		MatrixUtils.normalizeColumnL2(abstractConceptdocumentMatrix, null);
 		
 		for (int i = 0; i < abstractConceptDocumentIndices.length; i++) {
