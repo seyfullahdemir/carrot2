@@ -27,7 +27,7 @@ public class ExclusiveDefinitionLabelAssigner1 implements ILabelAssigner {
 		DoubleMatrix2D abstractConceptTermMatrix = termAbstractConceptMatrix.viewDice();
 		
 
-		DoubleMatrix2D abstractConceptdocumentMatrix = abstractConceptTermMatrix.zMult(termDocumentMatrix, null, 1, 0, false, false);
+		DoubleMatrix2D abstractConceptdocumentMatrix = coefficientMatrix.viewDice();
 		
         int[] includedAbstractConceptIndices = new int[abstractConceptdocumentMatrix.columns()];
 		double[] includedAbstractConceptScores = new double[abstractConceptdocumentMatrix.columns()];
