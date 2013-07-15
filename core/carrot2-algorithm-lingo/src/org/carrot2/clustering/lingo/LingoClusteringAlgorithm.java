@@ -143,7 +143,7 @@ public class LingoClusteringAlgorithm extends ProcessingComponentBase implements
     /**
      * Cluster label builder, contains bindable attributes.
      */
-    public final ClusterBuilder clusterBuilder = new ClusterBuilder();
+    public final ClusterBuilder clusterBuilder = new ExtendedClusterBuilder();
 
     /**
      * Cluster label formatter, contains bindable attributes.
